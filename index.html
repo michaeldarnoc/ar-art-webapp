@@ -11,13 +11,13 @@
   <body>
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind;" 
              embedded color-space="sRGB" 
-             vr-mode-ui="enabled: false" 
+             vr-mode-ui="enabled: true" 
              device-orientation-permission-ui="enabled: true">
       <a-assets>
         <a-asset-item id="spacerunner" src="./assets/spacerunners.glb"></a-asset-item>
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
         <a-gltf-model src="#spacerunner" position="0 0 0" scale="0.25 0.25 0.25" rotation="0 180 0"></a-gltf-model>
