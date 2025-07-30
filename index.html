@@ -9,6 +9,19 @@
     </style>
   </head>
   <body>
+    <button id="startAR">Start AR</button>
+<script>
+  document.getElementById("startAR").addEventListener("click", async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true });
+      document.querySelector("a-scene").style.display = "block";
+      document.getElementById("startAR").style.display = "none";
+    } catch {
+      alert("Camera permission required");
+    }
+  });
+</script>
+
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind;" 
              embedded color-space="sRGB" 
              vr-mode-ui="enabled: true" 
