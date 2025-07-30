@@ -6,21 +6,22 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body, html { margin: 0; overflow: hidden; }
+      a-scene {
+  background-color: black;
+}
+
     </style>
   </head>
   <body>
+
     <button id="startAR">Start AR</button>
 <script>
-  document.getElementById("startAR").addEventListener("click", async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true });
-      document.querySelector("a-scene").style.display = "block";
-      document.getElementById("startAR").style.display = "none";
-    } catch {
-      alert("Camera permission required");
-    }
+  document.getElementById("startAR").addEventListener("click", () => {
+    document.querySelector("a-scene").components["mindar-image"].start();
+    document.getElementById("startAR").style.display = "none";
   });
 </script>
+
 
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind;" 
              embedded color-space="sRGB" 
