@@ -41,7 +41,7 @@
       color-space="sRGB" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: true"
-      loading-screen="enabled: false">
+      loading-screen="enabled: true">
 
       <a-assets>
         <a-asset-item id="spacerunner" src="./assets/spacerunners.glb"></a-asset-item>
@@ -55,25 +55,57 @@
     </a-scene>
 
     <script>
-      const scene = document.querySelector("a-scene");
-      const startBtn = document.getElementById("startAR");
-      const unsupportedMsg = document.getElementById("unsupported");
-      const noCameraMsg = document.getElementById("no-camera");
+  const scene = document.querySelector("a-scene");
+  const startBtn = document.getElementById("startAR");
+  const unsupportedMsg = document.getElementById("unsupported");
+  const noCameraMsg = document.getElementById("no-camera");
 
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        unsupportedMsg.style.display = "block";
-        startBtn.style.display = "none";
-      }
-
-      startBtn.addEventListener("click", async () => {
-        try {
-          await scene.components["mindar-image"].start();
-          startBtn.style.display = "none";
-        } catch (e) {
-          console.error("Camera access error:", e);
-          noCameraMsg.style.display = "block";
+  async function requestPermissions() {
+    // iOS motion permission
+    if (typeof DeviceMotionEvent !== "undefined" &&
+        typeof DeviceMotionEvent.requestPermission === "function") {
+      try {
+        const response = await DeviceMotionEvent.requestPermission();
+        if (response !== "granted") {
+          console.warn("Motion permission not granted");
         }
-      });
-    </script>
+      } catch (err) {
+        console.error("Motion permission error:", err);
+      }
+    }
+
+    // iOS camera permission check
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop()); // immediately stop if just checking permission
+    } catch (e) {
+      console.error("Camera permission denied or not available:", e);
+      noCameraMsg.style.display = "block";
+      startBtn.style.display = "none";
+      return false;
+    }
+
+    return true;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    unsupportedMsg.style.display = "block";
+    startBtn.style.display = "none";
+  }
+
+  startBtn.addEventListener("click", async () => {
+    const permissionsGranted = await requestPermissions();
+    if (permissionsGranted) {
+      try {
+        await scene.components["mindar-image"].start();
+        startBtn.style.display = "none";
+      } catch (e) {
+        console.error("Error starting AR scene:", e);
+        noCameraMsg.style.display = "block";
+      }
+    }
+  });
+</script>
+
   </body>
 </html>
