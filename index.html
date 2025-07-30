@@ -5,28 +5,44 @@
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body, html { margin: 0; overflow: hidden; }
-      a-scene {
-  background-color: black;
-}
-
+      body, html { margin: 0; overflow: hidden; font-family: sans-serif; }
+      a-scene { background-color: black; }
+      #startAR {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 2;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #unsupported, #no-camera {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+      }
     </style>
   </head>
   <body>
 
     <button id="startAR">Start AR</button>
-<script>
-  document.getElementById("startAR").addEventListener("click", () => {
-    document.querySelector("a-scene").components["mindar-image"].start();
-    document.getElementById("startAR").style.display = "none";
-  });
-</script>
+    <div id="unsupported">⚠️ Your device does not support AR or WebXR.<br>Please try using a newer mobile device or browser.</div>
+    <div id="no-camera">⚠️ Camera access is blocked or not available.<br>Please allow camera permissions in your browser settings.</div>
 
+    <a-scene 
+      mindar-image="imageTargetSrc: ./assets/targets.mind;" 
+      embedded 
+      color-space="sRGB" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: true"
+      loading-screen="enabled: false">
 
-    <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind;" 
-             embedded color-space="sRGB" 
-             vr-mode-ui="enabled: true" 
-             device-orientation-permission-ui="enabled: true">
       <a-assets>
         <a-asset-item id="spacerunner" src="./assets/spacerunners.glb"></a-asset-item>
       </a-assets>
@@ -37,5 +53,27 @@
         <a-gltf-model src="#spacerunner" position="0 0 0" scale="0.25 0.25 0.25" rotation="0 180 0"></a-gltf-model>
       </a-entity>
     </a-scene>
+
+    <script>
+      const scene = document.querySelector("a-scene");
+      const startBtn = document.getElementById("startAR");
+      const unsupportedMsg = document.getElementById("unsupported");
+      const noCameraMsg = document.getElementById("no-camera");
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        unsupportedMsg.style.display = "block";
+        startBtn.style.display = "none";
+      }
+
+      startBtn.addEventListener("click", async () => {
+        try {
+          await scene.components["mindar-image"].start();
+          startBtn.style.display = "none";
+        } catch (e) {
+          console.error("Camera access error:", e);
+          noCameraMsg.style.display = "block";
+        }
+      });
+    </script>
   </body>
 </html>
